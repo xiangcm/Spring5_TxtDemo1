@@ -25,11 +25,27 @@
         <!--注入dataSource-->
         <property name="dataSource" ref="dataSource" ></property>
     </bean>
-    <!--创建事务管理器-->
+    <!--1) 创建事务管理器-->
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <!--注入数据源-->
         <property name="dataSource" ref="dataSource"></property>
     </bean>
-    <!--开启事务注解-->
-    <tx:annotation-driven transaction-manager="transactionManager"></tx:annotation-driven>
+    <!--2) 配置通知-->
+    <tx:advice id="txAdvice">
+        <!--配置事务参数-->
+        <tx:attributes>
+            <!--指定那种规则的方法上添加事务
+                1）直接写方法名
+                2）方法名前缀
+            -->
+            <tx:method name="accountMoney"/>
+            <!--<tx:method name="account*"/>-->
+        </tx:attributes>
+    </tx:advice>
+    <!--3) 配置切入点和切面-->
+    <aop:config>
+        <!--配置切入点-->
+        <aop:pointcut id="moneyPoint" expression="execution(* com.xiangcm.spring5.service.UserService.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="moneyPoint" />
+    </aop:config>
 </beans>
